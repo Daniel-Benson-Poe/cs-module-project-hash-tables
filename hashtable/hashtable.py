@@ -8,6 +8,105 @@ class HashTableEntry:
         self.next = None
 
 
+class LinkedList:
+
+    def __init__(self):
+        self.head = None
+        self.tail = None
+        self.length = 0
+
+    def add_to_tail(self, key, value):
+        new_entry = HashTableEntry(key, value)
+        if self.head is None and self.tail is None:
+            self.head = new_entry
+            self.tail = new_entry
+
+        else:
+            self.tail.next = new_entry
+            self.tail = new_entry
+        self.length += 1
+
+    def remove_tail(self):
+        if self.head is None and self.tail is None:
+            return None
+
+        if self.head == self.tail:
+            removed_entry = self.head
+            self.head = None
+            self.tail = None
+            self.length -= 1
+            return val
+
+        else:
+            removed_entry = self.tail
+            current = self.head
+            while current.next != self.tail:
+                current = current.next
+            
+            self.tail = current
+            self.tail.next = None
+            self.length -= 1
+            return removed_entry
+
+    def remove_head(self):
+        if self.head is None and self.tail is None:
+            return None
+
+        if self.head == self.tail:
+            removed_entry = self.head
+            self.head = None
+            self.tail = None
+            self.length -= 1
+            return removed_entry
+        
+        else:
+            removed_entry = self.head
+            self.head = self.head.next
+            self.length -= 1
+            return removed_entry
+
+    def contains(self, key):
+        if not self.head:
+            return False
+
+        current = self.head
+        while current:
+            if current.key == key:
+                return True
+            
+            current = current.next
+
+        return False
+        
+    def remove_key(self, key):
+        if self.head is None and self.tail is None:
+            return None
+
+        current = self.head
+        while current.key != key:
+            removed_entry = self.remove_head()
+            self.add_to_tail(removed_entry.key, removed_entry.value)
+            current = self.head
+        return self.remove_head()
+
+    def find_key_value(self, key):
+        if self.head is None and self.tail is None:
+            return None
+
+        current = self.head
+        while current:
+            if current.key == key:
+                return current.value
+            else:
+                current = current.next
+
+        return None
+
+
+       
+
+
+
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
 
@@ -26,6 +125,7 @@ class HashTable:
         else:
             self.capacity = capacity
         self.table = [None] * self.capacity
+        self.size = 0
 
 
     def get_num_slots(self):
@@ -50,7 +150,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        pass
+        return self.size / self.get_num_slots()
 
 
     def fnv1(self, key):
@@ -112,7 +212,16 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        self.table[index] = value
+        if self.table[index] is not None:
+            if self.table[index].contains(key):
+                self.table[index].remove_key(key)
+            self.table[index].add_to_tail(key, value)
+
+        else:
+            self.table[index] = LinkedList()
+            self.table[index].add_to_tail(key, value)
+
+        self.size += 1
 
 
     def delete(self, key):
@@ -128,7 +237,8 @@ class HashTable:
         if self.table[index] is None:
             print("Key was not found within the table")
         else:
-            self.table[index] = None
+            self.table[index].remove_key(key)
+        self.size -= 1
 
 
     def get(self, key):
@@ -142,7 +252,9 @@ class HashTable:
         # Your code here
         index = self.hash_index(key)
 
-        return self.table[index]
+        return self.table[index].find_key_value(key)
+        
+
 
     def resize(self, new_capacity):
         """
@@ -152,7 +264,15 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        pass
+        temp_list = []
+        [temp_list.append(entry) for entry in self.table if entry is not None]
+        self.capacity = new_capacity
+        self.table = [None] * self.capacity
+        for entry in temp_list:
+            while entry.length > 0:
+                head = entry.remove_head()
+                self.put(head.key, head.value)
+
 
 
 
