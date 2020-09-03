@@ -1,6 +1,15 @@
 def no_dups(s):
     # Your code here
-
+    s_dict = {}
+    s = s.split()
+    for string in s:
+        if string in s_dict.keys():
+            continue
+        else:
+            s_dict[string] = 1
+    s = " "
+    s = s.join(s_dict)
+    return s
 
 
 if __name__ == "__main__":
