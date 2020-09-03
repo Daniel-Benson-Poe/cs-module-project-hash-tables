@@ -1,8 +1,6 @@
 # Your code here
 import random
 import math
-from hashtable import HashTable
-import time
 
 slow_dict = [None] * 100
 
